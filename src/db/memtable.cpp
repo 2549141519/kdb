@@ -24,7 +24,7 @@ Memtable::Memtable()
 void Memtable::Set(const std::shared_ptr<SetContext>& set_context) {
   auto key_size = VarintLength(set_context->key.size());
   auto value_size = VarintLength(set_context->value.size());
-  auto sequence_number = VarintLength(set_context->value.size());
+  auto sequence_number = VarintLength(set_context->number);
 
   std::string simple_set_str = fmt::format(
       "{}{}{}{}{}{}", format32_vec[key_size], set_context->key,
@@ -72,8 +72,9 @@ void Memtable::Set(const std::shared_ptr<SetContext>& set_context) {
 
 void Memtable::Get(const std::shared_ptr<GetContext>& get_context) {
   SkipList<std::string_view,Comparator>::Iterator iter(&table_);
+  iter.SeekToFirst();
   while(iter.Valid()) {
-    auto key = iter.key();
+    std::string_view key = iter.key();
 
     uint32_t mem_key_size = 0;
     auto end_ptr = GetVarint32Ptr(key.data(), key.data() + 5, &mem_key_size);
@@ -87,7 +88,7 @@ void Memtable::Get(const std::shared_ptr<GetContext>& get_context) {
       // 获取 key, value 当前状态
       uint8_t key_type = DecodeFixed8(end_ptr);
       if (key_type == ValueType::kTypeDeletion) {
-        get_context->code.setCode(StatusCode::kDelete);
+        get_context->code.setCode(StatusCode::kNotFound);
         return ;
       } else {
         end_ptr++;
@@ -99,10 +100,13 @@ void Memtable::Get(const std::shared_ptr<GetContext>& get_context) {
         return ;
       }
     }
-    
-    get_context->code.setCode(StatusCode::kNotFound);
-    return ;
+    else if (user_key < get_context->key) {
+      iter.Next();
+      }
+    else break;
   }
+  get_context->code.setCode(StatusCode::kNotFound);
+  return ;
 }
 
 void Memtable::Delete(const std::shared_ptr<DeleteContext>& del_context) {

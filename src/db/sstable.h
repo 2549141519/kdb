@@ -48,8 +48,8 @@ public:
 
   const std::string& getPath() { return filePath_; }
 
-  
-
+  bool Init(const std::string& path, const std::string& filename,
+                   const uint32_t level, const uint32_t number);
 private:
   int fd_;
   
@@ -73,10 +73,6 @@ private:
   std::string filePath_;
   
 };    
-
-
-
-
 }
 
 #endif
