@@ -1,4 +1,4 @@
-
+#pragma once
 #include <atomic>
 #include <cassert>
 #include <cstddef>
@@ -19,6 +19,8 @@ public:
 
     //两个留给用户的接口 分别是申请内存对齐和默认的起始地址
     char *Allocate(std::size_t bytes);
+    //char* AllocateAligned(std::size_t bytes);
+
     char* AllocateAligned(std::size_t bytes);
     
     //arena这个内存管理器已经开辟了多少内存了

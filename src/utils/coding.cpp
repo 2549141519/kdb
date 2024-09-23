@@ -69,7 +69,7 @@ void PutVarint64(std::string* dst, uint64_t v) {
   dst->append(buf, ptr - buf);
 }
 
-void PutLengthPrefixedSlice(std::string* dst, const Slice& value) {
+void PutLengthPrefixedstring_view(std::string* dst, const std::string_view& value) {
   PutVarint32(dst, value.size());
   dst->append(value.data(), value.size());
 }
@@ -101,14 +101,14 @@ const char* GetVarint32PtrFallback(const char* p, const char* limit,
   return nullptr;
 }
 
-bool GetVarint32(Slice* input, uint32_t* value) {
+bool GetVarint32(std::string_view* input, uint32_t* value) {
   const char* p = input->data();
   const char* limit = p + input->size();
   const char* q = GetVarint32Ptr(p, limit, value);
   if (q == nullptr) {
     return false;
   } else {
-    *input = Slice(q, limit - q);
+    *input = std::string_view(q, limit - q);
     return true;
   }
 }
@@ -130,22 +130,22 @@ const char* GetVarint64Ptr(const char* p, const char* limit, uint64_t* value) {
   return nullptr;
 }
 
-bool GetVarint64(Slice* input, uint64_t* value) {
+bool GetVarint64(std::string_view* input, uint64_t* value) {
   const char* p = input->data();
   const char* limit = p + input->size();
   const char* q = GetVarint64Ptr(p, limit, value);
   if (q == nullptr) {
     return false;
   } else {
-    *input = Slice(q, limit - q);
+    *input = std::string_view(q, limit - q);
     return true;
   }
 }
 
-bool GetLengthPrefixedSlice(Slice* input, Slice* result) {
+bool GetLengthPrefixedstring_view(std::string_view* input, std::string_view* result) {
   uint32_t len;
   if (GetVarint32(input, &len) && input->size() >= len) {
-    *result = Slice(input->data(), len);
+    *result = std::string_view(input->data(), len);
     input->remove_prefix(len);
     return true;
   } else {

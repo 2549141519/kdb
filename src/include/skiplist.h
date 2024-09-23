@@ -296,10 +296,11 @@ inline void SkipList<Key, Comparator>::Iterator::Seek(const Key& target) {
 }
 
 template <typename Key, class Comparator>
-SkipList<Key, Comparator>::SkipList(Comparator cmp,Arena*  arena)
+SkipList<Key, Comparator>::SkipList(Comparator cmp, Arena* arena)
     : compare_(cmp),
       arena_(arena),
-      head_(NewNode(0 /* any key will do */, KMaxHeight)),
+      //head_(NewNode(0 /* any key will do */, KMaxHeight)),
+      head_(NewNode(std::string_view() /* any key will do */, KMaxHeight)),
       max_height_(1),
       rnd_(0xdeadbeef) {
   for (int i = 0; i < KMaxHeight; i++) {

@@ -43,5 +43,25 @@ char* Arena::AllocateNewBlock(std::size_t block_bytes)
         return result;
     }
 
+char* Arena::AllocateAligned(std::size_t bytes) {
+  const int align = (sizeof(void*) > 8) ? sizeof(void*) : 8;
+  static_assert((align & (align - 1)) == 0,
+                "Pointer size should be a power of 2");
+  std::size_t current_mod = reinterpret_cast<uintptr_t>(alloc_ptr_) & (align - 1);
+  std::size_t slop = (current_mod == 0 ? 0 : align - current_mod);
+  std::size_t needed = bytes + slop;
+  char* result;
+  if (needed <= alloc_bytes_remaining_) {
+    result = alloc_ptr_ + slop;
+    alloc_ptr_ += needed;
+    alloc_bytes_remaining_ -= needed;
+  } else {
+    // AllocateFallback always returned aligned memory
+    result = AllocateFallback(bytes);
+  }
+  assert((reinterpret_cast<uintptr_t>(result) & (align - 1)) == 0);
+  return result;
+}
+
 
 };

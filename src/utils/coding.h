@@ -7,13 +7,13 @@
 // * In addition we support variable length "varint" encoding
 // * Strings are encoded prefixed by their length in varint format
 
-
+#pragma once
 
 #include <cstdint>
 #include <cstring>
 #include <string>
 
-#include "../include/slice.h"
+
 
 
 namespace kdb {
@@ -23,13 +23,13 @@ void PutFixed32(std::string* dst, uint32_t value);
 void PutFixed64(std::string* dst, uint64_t value);
 void PutVarint32(std::string* dst, uint32_t value);
 void PutVarint64(std::string* dst, uint64_t value);
-void PutLengthPrefixedSlice(std::string* dst, const Slice& value);
+void PutLengthPrefixedstring_view(std::string* dst, const std::string_view& value);
 
-// Standard Get... routines parse a value from the beginning of a Slice
-// and advance the slice past the parsed value.
-bool GetVarint32(Slice* input, uint32_t* value);
-bool GetVarint64(Slice* input, uint64_t* value);
-bool GetLengthPrefixedSlice(Slice* input, Slice* result);
+// Standard Get... routines parse a value from the beginning of a std::string_view
+// and advance the std::string_view past the parsed value.
+bool GetVarint32(std::string_view* input, uint32_t* value);
+bool GetVarint64(std::string_view* input, uint64_t* value);
+bool GetLengthPrefixedstring_view(std::string_view* input, std::string_view* result);
 
 // Pointer-based variants of GetVarint...  These either store a value
 // in *v and return a pointer just past the parsed value, or return
@@ -60,6 +60,11 @@ inline void EncodeFixed32(char* dst, uint32_t value) {
   buffer[3] = static_cast<uint8_t>(value >> 24);
 }
 
+inline void EncodeFixed8(char* dst, uint8_t value) {
+  // Recent clang and gcc optimize this to a single mov / str instruction.
+  dst[0] = static_cast<uint8_t>(value);
+}
+
 inline void EncodeFixed64(char* dst, uint64_t value) {
   uint8_t* const buffer = reinterpret_cast<uint8_t*>(dst);
 
@@ -76,6 +81,11 @@ inline void EncodeFixed64(char* dst, uint64_t value) {
 
 // Lower-level versions of Get... that read directly from a character buffer
 // without any bounds checking.
+inline uint8_t DecodeFixed8(const char* src) {
+  // Recent clang and gcc optimize this to a single mov / str instruction.
+  return static_cast<uint8_t>(src[0]);
+}
+
 
 inline uint32_t DecodeFixed32(const char* ptr) {
   const uint8_t* const buffer = reinterpret_cast<const uint8_t*>(ptr);
