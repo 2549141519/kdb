@@ -26,7 +26,11 @@ namespace kdb {
     Memtable memtable;
     //测试返回值是否正确
     std::shared_ptr<SetContext> context1 = std::make_shared<SetContext>(std::string_view("key1"), std::string_view("value1"));
+    context1->number = 1;
     memtable.Set(context1);
+    std::shared_ptr<SetContext> context4 = std::make_shared<SetContext>(std::string_view("key1"), std::string_view("value1"));
+    context4->number = 2;
+    memtable.Set(context4);
     std::shared_ptr<GetContext> context2 = std::make_shared<GetContext>(std::string_view("key1"));
     memtable.Get(context2);
     EXPECT_EQ(context2->value, "value1");
@@ -50,6 +54,7 @@ namespace kdb {
     GetContext getContext1(std::string_view("key1"));
     memtable.Get(std::make_shared<GetContext>(getContext1));
     
+    EXPECT_EQ(getContext1.code.getCode(), StatusCode::kDelete);
     }
 */
 }

@@ -5,6 +5,7 @@
 #include<atomic>
 #include<cassert>
 #include<stdlib.h>
+#include <fmt/core.h> //sudo apt install libfmt-dev
 #include "../utils/arena.h"
 #include "../utils/random.h"
 // 线程安全
@@ -59,7 +60,7 @@ public:
 
         // Returns the key at the current position.
         // REQUIRES: Valid()
-        const Key& key() const;
+        Key key() const;
         void Next();
         void Prev();
         void SeekToFirst();
@@ -102,6 +103,8 @@ private:
     bool KeyIsAfterNode(const Key& key, Node* n) const;
 
 private:
+    std::string min_node_;
+    
     std::atomic<int> max_height_;  // Height of the entire list
 
     // 比较器
@@ -111,7 +114,6 @@ private:
     Node* const head_;
 
     Random rnd_;
-
 };
 
 //后置实现
@@ -150,7 +152,7 @@ public:
     }
 
 public:
-    Key const key;
+    std::string const key;
 private:
     //指针数组 跳表的核心实现原理
     std::atomic<Node*> next_[1]; //这个地方 就是无锁结构 整个跳表只有next指针用的atomic 用内存序做保证
@@ -254,9 +256,9 @@ inline bool SkipList<Key, Comparator>::Iterator::Valid() const {
 }
 
 template <typename Key, class Comparator>
-inline const Key& SkipList<Key, Comparator>::Iterator::key() const {
+inline Key SkipList<Key, Comparator>::Iterator::key() const {
   assert(Valid());
-  return node_->key;
+  return Key(node_->key);
 }
 
 template <typename Key, class Comparator>
@@ -299,8 +301,9 @@ template <typename Key, class Comparator>
 SkipList<Key, Comparator>::SkipList(Comparator cmp, Arena* arena)
     : compare_(cmp),
       arena_(arena),
+      min_node_(fmt::format("{}{}{}{}{}{}", '0', ' ', '0', '0', '0', ' ')),
       //head_(NewNode(0 /* any key will do */, KMaxHeight)),
-      head_(NewNode(std::string_view() /* any key will do */, KMaxHeight)),
+      head_(NewNode(std::string_view(min_node_) /* any key will do */, KMaxHeight)),
       max_height_(1),
       rnd_(0xdeadbeef) {
   for (int i = 0; i < KMaxHeight; i++) {
@@ -341,7 +344,7 @@ void SkipList<Key, Comparator>::Insert(const Key& key)
 
     //没有比它大的 返回nullptr 插在头节点之后
     //这里会让pre指向他插入位置的下一个元素 
-    assert(n != nullptr || !Equal(key, n->key));
+    assert(n == nullptr || !Equal(key, n->key));
 
     //这里获取插入的高度
     //如果高度比当前高度大 应该让pre的高处的部分指向head
@@ -355,6 +358,7 @@ void SkipList<Key, Comparator>::Insert(const Key& key)
     }
 
     n = NewNode(key, height);
+
     for (int i = 0; i < height; i++) 
     {
     // NoBarrier_SetNext() suffices since we will add a barrier when

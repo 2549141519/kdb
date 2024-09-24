@@ -24,6 +24,8 @@ bool WalWriter::Init(const std::string& path, const std::string& filename,
   if (true == ue) {  
     status->setCode(StatusCode::kOk);
     current_log_size_ += wal_file_.getFileSize();
+    // 添加返回true;
+    return true;
     } else {
         status->setCode(StatusCode::kIoError);
     }

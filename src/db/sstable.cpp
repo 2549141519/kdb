@@ -30,15 +30,18 @@ SSTable::~SSTable() {
 void SSTable::Close() {
   if (true == isOpen_) {
     ::close(fd_);
+    fd_ = -1;
     isOpen_ = false;
    }
 }
+/*
 void SSTable::Close() {
   if (true == isOpen_) {
     ::close(fd_);
     isOpen_ = false;
    }
 }
+*/
 void SSTable::CloseMmap() {
   ::munmap(static_cast<void*>(mmapBasePtr_), fileLength_);
 }
