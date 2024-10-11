@@ -61,7 +61,7 @@ uint32_t SSTable::getFileSize() {
 
 void SSTable::setLevel(const uint32_t n) { sstable_level_ = n; }
 
-auto SSTable::getLevel() { return sstable_level_; }
+uint32_t SSTable::getLevel() { return sstable_level_; }
 
 void SSTable::setNumber(const uint32_t n) { sstable_number_ = n; }
 
@@ -76,6 +76,14 @@ bool SSTable::Init(const std::string& path, const std::string& filename,
   if (fd_ < 0) {
     return false;
   }
+
+  // 预留文件大小
+  size_t initial_file_size = 150 * 1024 * 1024; // 预留 150MB 文件大小，实际大小根据需求调整
+  if (::ftruncate(fd_, initial_file_size) != 0) {
+    ::close(fd_);
+    return false;
+  }
+
   fileName_ = filename;
   filePath_ = path;
   sstable_number_ = number;
@@ -92,7 +100,7 @@ bool SSTable::InitMmap() {
 
   fileLength_ = stat_buf.st_size;
   mmapBasePtr_ = static_cast<char*>(
-      ::mmap(nullptr, fileLength_, PROT_READ, MAP_SHARED, fd_, 0));
+      ::mmap(nullptr, fileLength_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0));
   if (mmapBasePtr_ == MAP_FAILED) {
     return false;
   }

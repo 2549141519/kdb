@@ -33,10 +33,10 @@ TEST(WalWriterTest, LogOverflowTest) {
 
     // 设置较小的日志大小，以便测试环形缓冲区
     writer.Init("/tmp/", "test_wal_overflow.log", &status);
-    writer.SetWalLogDefultSize(10);  // 设置日志大小为128字节
+    writer.SetWalLogDefultSize(10);  // 设置日志大小为10字节
 
     // 写入几条超过128字节的日志
-    std::string large_record(11, 'A');  // 生成一条150字节的日志记录
+    std::string large_record(11, 'A');  // 生成一条11字节的日志记录
     bool result = writer.AddRecord(large_record);
     EXPECT_TRUE(result);  // 期望记录写入成功
 
@@ -47,8 +47,8 @@ TEST(WalWriterTest, LogOverflowTest) {
 }
 
 TEST(WalLogTest, ReadTest) {
-    kdb::WalWriter writer;
-    kdb::Status status;
+    WalWriter writer;
+    Status status;
 
     // 初始化WalWriter
     writer.Init("/tmp/", "test_wal_read.log", &status);

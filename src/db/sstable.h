@@ -23,7 +23,7 @@ public:
   void Close();
 
   // 获取当前的 Level
-  auto getLevel();
+  uint32_t getLevel();
 
   // 获取当前 SSTable Level
   void setLevel(const uint32_t n);
@@ -48,6 +48,11 @@ public:
 
   const std::string& getPath() { return filePath_; }
 
+  const std::string& getMinKey() const { return min_key_; }
+  const std::string& getMaxKey() const { return max_key_; }
+  void setMinKey(const std::string& key) { min_key_ = key; }
+  void setMaxKey(const std::string& key) { max_key_ = key; }
+
   bool Init(const std::string& path, const std::string& filename,
                    const uint32_t level, const uint32_t number);
 private:
@@ -71,6 +76,8 @@ private:
   // TODO, use std::string_view instead of std::string in Init.
   std::string fileName_;
   std::string filePath_;
+  std::string min_key_;
+  std::string max_key_;
   
 };    
 }

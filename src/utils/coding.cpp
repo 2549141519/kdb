@@ -153,4 +153,16 @@ bool GetLengthPrefixedstring_view(std::string_view* input, std::string_view* res
   }
 }
 
+const char* GetVarint32Ptr(const char* p, const char* limit,
+                                  uint32_t* value) {
+  if (p < limit) {
+    uint32_t result = *(reinterpret_cast<const uint8_t*>(p));
+    if ((result & 128) == 0) {
+      *value = result;
+      return p + 1;
+    }
+  }
+  return GetVarint32PtrFallback(p, limit, value);
+}
+
 }  // namespace leveldb

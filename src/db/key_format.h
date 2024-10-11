@@ -1,5 +1,6 @@
 #ifndef SRC_DB_KEYFORMAT_H_
 
+#define SRC_DB_KEYFORMAT_H_
 // key_design
 //
 //
@@ -14,14 +15,25 @@
 //#include "src/db/comp.h"
 #include "comp.h"
 #include "../include/skiplist.h"
+#include "absl/container/btree_set.h"
+#include "request.h"
+#include "absl/container/btree_set.h"
+#include "../utils/coding.h"
 
-
-#define SRC_DB_KEYFORMAT_H_
-#endif
 
 
 namespace kdb {
-using MemSkipTable = SkipList<std::string_view,Comparator>; 
+    
+using MemSkipTable = SkipList<std::string,Comparator>; 
+
+struct BComparator {
+    absl::weak_ordering operator()(std::string_view const& left,
+                    std::string_view const& right) const;
+    };
+    
+
+using MemBTreeView = absl::btree_set<std::string, BComparator>;
+
 
 // 为了格式化, 1 个空格
 const std::string kEmpty1Space = " ";
@@ -81,3 +93,4 @@ enum ValueType {
   kTypeValue = 1,
 };
 }
+#endif

@@ -13,7 +13,7 @@
 //#include "src/utils/arena.h"
 #include "../utils/arena.h"
 #include "request.h"
-
+#include "../include/bloomfilter.h"
 
 namespace kdb {
 // 默认一个 Memtable 的最大容量是 128 MB
@@ -33,7 +33,7 @@ public:
   
   uint32_t getMemSize();
 
-  MemSkipTable& getMemTableRef();
+  MemSkipTable* getMemTableRef();
 
   // 让当前 Memtable 只读
   void setReadOnly();
@@ -57,6 +57,14 @@ public:
 
   auto setCompactionN(const uint32_t n) { compaction_number_ = n; }
 
+  BitSet<kBloomFilterDefaultSize>* getFilterData() { return bloomFilter_.getFilterData(); }
+  
+  BloomFilter<> getBloomFilter() { return bloomFilter_; }
+
+  uint64 getBloomSeed() { return bloomFilter_.getFilterSeed(); }
+
+  
+  std::shared_ptr<MemSkipTable> getSkipTable() { return std::shared_ptr<MemSkipTable>(&table_); }
   
 private:
   // 是否只是可读
@@ -84,6 +92,11 @@ private:
   //MemBTree memMap_;
   
   MemSkipTable table_;
+
+  BloomFilter<> bloomFilter_;
+
+  // 当前内存表所花费的内存
+  uint32_t memSize_;
 
   
 };

@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build CompactorTest", 
+      "type": "shell",
+      "command": "g++",
+      "args": [
+        "-std=c++20",
+        "-g",                       
+        "-O0",                      
+        "-I", "/usr/local/include",
+        "-I", "/path/to/fmt/include",
+        "-L", "/usr/local/lib",
+        "${workspaceFolder}/src/db/test/compactortest.cpp",
+        "${workspaceFolder}/src/db/compactor.cpp",
+        "${workspaceFolder}/src/utils/coding.cpp",
+        "${workspaceFolder}/src/db/status.cpp",
+        "${workspaceFolder}/src/db/key_format.cpp",
+        "${workspaceFolder}/src/utils/arena.cpp",
+        "${workspaceFolder}/src/utils/crc32.cpp",
+        "${workspaceFolder}/src/db/comp.cpp",
+        "${workspaceFolder}/src/db/memtable.cpp",
+        "${workspaceFolder}/src/db/sstable.cpp",
+        "${workspaceFolder}/src/db/sstable_view.cpp",
+        "${workspaceFolder}/src/db/table_view_manager.cpp",
+        "${workspaceFolder}/src/utils/hash/city_hash.cpp",
+        "${workspaceFolder}/src/utils/hash/xxhash64.hpp",
+        "${workspaceFolder}/src/utils/hash/farmhash.cpp",
+        "-o", "${workspaceFolder}/src/db/test/compactortest",
+        "-lgmock", "-lgtest", "-lgtest_main", "-pthread", "-lfmt", "-lcityhash", "-lutil"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
